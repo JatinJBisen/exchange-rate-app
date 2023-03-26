@@ -1,0 +1,26 @@
+version: "3.8"
+
+networks:
+ densou_net:
+  driver: bridge
+  ipam:
+   driver: default
+
+services:
+
+    MAIN:
+      image: main:1001
+      working_dir: /app
+      hostname: main
+      networks:
+       densou_net:
+        aliases:
+        - main
+      volumes:
+      - .:/app
+      ports:
+      - "8000:80"
+      command: ["/bin/bash","-c","/etc/main/main_start_script.sh;/bin/bash"]
+      stdin_open: true
+      tty: true
+
