@@ -21,4 +21,5 @@ This App helps to the get the exchange rate alongwith its history
                from = EUR   Optional, Default value: EUR     <br/>
                to = INR     Optional, Default value: INR     <br/>
                amount = 45  Optional, Default value: 1       <br/>
+   <br/>
    Respone format: JSON    <br/>
