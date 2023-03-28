@@ -23,3 +23,6 @@ This App helps to the get the exchange rate alongwith its history
                amount = 45  Optional, Default value: 1       <br/>
    <br/>
    Respone format: JSON    <br/>
+   <br/>
+   Supported Currencies: 'INR','EUR','USD','AED'
+   <br/>
