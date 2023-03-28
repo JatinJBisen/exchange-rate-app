@@ -30,8 +30,6 @@ services:
        densou_net:
         aliases:
         - main
-      volumes:
-      - .:/app
       ports:
       - "8000:80"
       depends_on:

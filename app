@@ -46,6 +46,8 @@ apt install symfony-cli -y
 
 #cd /app
 #symfony new exchange-rate-app --version="6.2.*@dev"
+mkdir /app
+cp -r /tmp/temp_data/exchange-rate-app /app/
 
 # Remove the non required files/folsers.
 apt clean
