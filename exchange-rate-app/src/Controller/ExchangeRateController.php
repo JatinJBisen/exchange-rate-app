@@ -6,12 +6,16 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Psr\Log\LoggerInterface;
+use App\Entity\Currency;
+use App\Entity\ExchangeHistory;
+use Doctrine\ORM\EntityManagerInterface;
 
 class ExchangeRateController
 {
-    public function __construct(private HttpClientInterface $client, private LoggerInterface $logger){
+    public function __construct(private HttpClientInterface $client, private LoggerInterface $logger, EntityManagerInterface $entityManager){
         $this->client = $client;
         $this->logger = $logger;
+        $this->entityManager = $entityManager;
     }
 
     /*
@@ -25,8 +29,8 @@ class ExchangeRateController
     {
         # Get Input
         # If any input is not provided, assign the default values.
-        $to = $request->query->get('to') ?? 'eur';
-        $from = $request->query->get('from') ?? 'inr';
+        $to = $request->query->get('to') ?? 'inr';
+        $from = $request->query->get('from') ?? 'eur';
         $amount = $request->query->get('amount') ?? 1;
         $rate = 1;
 
@@ -36,7 +40,7 @@ class ExchangeRateController
 
         # Allowable Input for "to"/"from"
         # To support more curreny e.g. "USD", add it in the below array.
-        $allowed_input = array('INR','EUR');
+        $allowed_input = array('INR','EUR','USD','AED');
 
         # Validate "to"
         if(!in_array($to,$allowed_input)){
@@ -77,12 +81,56 @@ class ExchangeRateController
 
         // $this->logger->info(print_r($content,1));
 
-        # Calculate the converted_amount
-        $converted_amount = $rate * $amount;
+        # Add Currency in the "Currency" table, if not exists.
+        $currency_repo = $this->entityManager->getRepository(Currency::class);
+        $from_var_in_db = $currency_repo->findOneBy(['currency' => $from]);
+        $to_var_in_db = $currency_repo->findOneBy(['currency' => $to]);
+        if(!$from_var_in_db){
+            $currency = new Currency();
+            $currency_in_db = $currency->setCurrency($from);
+            $this->entityManager->persist($currency);
+            $this->entityManager->flush();
+        }
+        if(!$to_var_in_db){
+            $currency = new Currency();
+            $currency_in_db = $currency->setCurrency($to);
+            $this->entityManager->persist($currency);
+            $this->entityManager->flush();
+        }
 
-        return new Response(
-            "<html><body> $amount $from = $converted_amount $to</body></html>"
-        );
+        # Add all exchange rate info in the "ExchangeHistory" table
+        # First, Get ID's of Currency from the "Currency" table
+        $from_var_in_db = $currency_repo->findOneBy(['currency' => $from]);
+        $to_var_in_db = $currency_repo->findOneBy(['currency' => $to]);
+        $from_id = $from_var_in_db->getId();
+        $to_id = $to_var_in_db->getId();
+        
+        # Create an object of ExchangeHistory and insert it in the database
+        $exchange_history = new ExchangeHistory();
+        $exchange_history->setConvertFrom($from_id);
+        $exchange_history->setConvertTo($to_id);
+        $exchange_history->setRate($rate);
+        $exchange_history->setAmount($amount);
+        $exchange_history->setTimestamp(time());
+        $this->entityManager->persist($exchange_history);
+        $this->entityManager->flush();
+
+        # Collect All History which matches "from" & "to"
+        $exchange_rate_repo = $this->entityManager->getRepository(ExchangeHistory::class);
+        $exchange_rate_history = $exchange_rate_repo->findBy(['convert_from' => $from_id, 'convert_to' => $to_id],['id' => 'DESC' ]);
+
+        # Response Array
+        $response_arr = array('records' => array());
+
+        foreach($exchange_rate_history as $record){
+            $timestamp = $record->getTimestamp();
+            $amount = $record->getAmount();
+            $rate = $record->getRate();
+            $converted_amount = $amount * $rate;
+            array_push($response_arr['records'], "$amount $from = $converted_amount $to  |  Rate: $rate  |  Time: ".date('Y-m-d H:i:s',$timestamp));
+        }
+
+        return new JsonResponse($response_arr, 200);
     }
 }
 ?>

@@ -8,6 +8,20 @@ networks:
 
 services:
 
+    POSTGRES:
+      image: postgres:latest
+      hostname: postgres
+      environment:
+      - POSTGRES_PASSWORD=mysecretpassword
+      networks:
+       densou_net:
+        aliases:
+        - postgres
+      volumes:
+      - postgres-data:/var/lib/postgresql/data
+      stdin_open: true
+      tty: true 
+
     MAIN:
       image: main:1001
       working_dir: /app
@@ -20,7 +34,11 @@ services:
       - .:/app
       ports:
       - "8000:80"
+      depends_on:
+      - POSTGRES
       command: ["/bin/bash","-c","/etc/main/main_start_script.sh;/bin/bash"]
       stdin_open: true
       tty: true
 
+volumes:
+ postgres-data:

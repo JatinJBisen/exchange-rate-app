@@ -8,6 +8,7 @@
 return [
     false, // $matchHost
     [ // $staticRoutes
+        '/currency' => [[['_route' => 'app_currency', '_controller' => 'App\\Controller\\CurrencyController::index'], null, null, null, false, false, null]],
         '/get_exchange_rate' => [[['_route' => 'get_exchange_rate', '_controller' => 'App\\Controller\\ExchangeRateController::getExchangeRate'], null, null, null, false, false, null]],
     ],
     [ // $regexpList

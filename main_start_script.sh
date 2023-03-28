@@ -7,3 +7,7 @@ chmod -R 777 /app/exchange-rate-app/var/log
 # Start the services
 service php8.2-fpm start
 service nginx start
+
+# Run Migrations
+cd /app/exchange-rate-app
+php bin/console doctrine:migrations:migrate

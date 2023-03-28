@@ -14,10 +14,12 @@ apt install php8.2-cgi -y
 apt install php8.2 -y
 apt install php8.2-xml -y
 apt install php8.2-fpm -y
+apt install php8.2-pgsql -y
 cp /tmp/temp_data/php.ini /etc/php/8.2/cgi/php.ini
 
 apt install unzip -y
 apt install curl -y
+apt install postgresql-client -y
 
 # Install nginx. Load the required config.
 apt install nginx -y
