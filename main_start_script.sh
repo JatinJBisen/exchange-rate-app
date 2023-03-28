@@ -10,4 +10,4 @@ service nginx start
 
 # Run Migrations
 cd /app/exchange-rate-app
-php bin/console doctrine:migrations:migrate
+php bin/console --no-interaction doctrine:migrations:migrate
