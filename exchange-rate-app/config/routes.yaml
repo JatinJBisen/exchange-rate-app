@@ -1,5 +1,10 @@
+
 controllers:
     resource:
         path: ../src/Controller/
         namespace: App\Controller
     type: attribute
+
+get_exchange_rate:
+    path: /get_exchange_rate
+    controller: App\Controller\ExchangeRateController::getExchangeRate

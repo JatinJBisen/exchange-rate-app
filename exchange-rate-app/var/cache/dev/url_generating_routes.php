@@ -4,4 +4,5 @@
 
 return [
     '_preview_error' => [['code', '_format'], ['_controller' => 'error_controller::preview', '_format' => 'html'], ['code' => '\\d+'], [['variable', '.', '[^/]++', '_format', true], ['variable', '/', '\\d+', 'code', true], ['text', '/_error']], [], [], []],
+    'get_exchange_rate' => [[], ['_controller' => 'App\\Controller\\ExchangeRateController::getExchangeRate'], [], [['text', '/get_exchange_rate']], [], [], []],
 ];
